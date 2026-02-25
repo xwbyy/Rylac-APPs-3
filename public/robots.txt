@@ -1,0 +1,8 @@
+User-agent: *
+Allow: /
+Disallow: /api/
+Disallow: /chat
+Disallow: /profile
+Disallow: /admin
+
+Sitemap: https://rylac-app.vercel.app/sitemap.xml

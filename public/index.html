@@ -1,0 +1,394 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0" />
+  <title>Rylac App – Chat Real-Time Modern</title>
+  <meta name="description" content="Rylac App adalah aplikasi chat real-time modern yang aman, cepat, dan mudah digunakan. Hubungi teman-teman Anda kapan saja." />
+  <meta name="keywords" content="chat, rylac, pesan, real-time, messaging, indonesia" />
+  <meta name="author" content="Rylac App" />
+  <meta name="robots" content="index, follow" />
+  <link rel="canonical" href="https://rylac.vercel.app/" />
+  <!-- Open Graph -->
+  <meta property="og:type" content="website" />
+  <meta property="og:title" content="Rylac App – Chat Real-Time Modern" />
+  <meta property="og:description" content="Aplikasi chat real-time modern yang aman dan cepat." />
+  <meta property="og:url" content="https://rylac.vercel.app/" />
+  <meta property="og:image" content="https://rylac.vercel.app/assets/og-image.png" />
+  <meta property="og:site_name" content="Rylac App" />
+  <!-- Twitter Card -->
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:title" content="Rylac App – Chat Real-Time Modern" />
+  <meta name="twitter:description" content="Aplikasi chat real-time modern yang aman dan cepat." />
+  <meta name="twitter:image" content="https://rylac.vercel.app/assets/og-image.png" />
+  <!-- Structured Data -->
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "WebApplication",
+    "name": "Rylac App",
+    "url": "https://rylac.vercel.app",
+    "description": "Aplikasi chat real-time modern yang aman, cepat, dan mudah digunakan.",
+    "applicationCategory": "CommunicationApplication",
+    "operatingSystem": "Web Browser"
+  }
+  </script>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="/css/style.css" />
+</head>
+<body class="theme-light" id="app-body">
+  <div id="app">
+    <!-- AUTH PAGES -->
+    <div id="auth-page" class="page active">
+      <div class="auth-bg">
+        <div class="auth-blobs">
+          <div class="blob blob1"></div>
+          <div class="blob blob2"></div>
+          <div class="blob blob3"></div>
+        </div>
+        <div class="auth-card">
+          <div class="auth-logo">
+            <div class="logo-icon">
+              <svg viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <rect width="40" height="40" rx="12" fill="url(#lg1)"/>
+                <path d="M10 13C10 11.3 11.3 10 13 10h14c1.7 0 3 1.3 3 3v10c0 1.7-1.3 3-3 3H22l-4 4-4-4h-1c-1.7 0-3-1.3-3-3V13z" fill="white"/>
+                <defs><linearGradient id="lg1" x1="0" y1="0" x2="40" y2="40" gradientUnits="userSpaceOnUse">
+                  <stop stop-color="#6C63FF"/><stop offset="1" stop-color="#48C8A9"/>
+                </linearGradient></defs>
+              </svg>
+            </div>
+            <span class="logo-text">Rylac</span>
+          </div>
+
+          <div class="auth-tabs">
+            <button class="auth-tab active" id="tab-login" onclick="switchTab('login')">Masuk</button>
+            <button class="auth-tab" id="tab-register" onclick="switchTab('register')">Daftar</button>
+            <div class="tab-slider" id="tab-slider"></div>
+          </div>
+
+          <!-- Login Form -->
+          <form id="login-form" class="auth-form active" onsubmit="handleLogin(event)">
+            <div class="form-group">
+              <label>Username</label>
+              <input type="text" id="login-username" placeholder="masukkan username" autocomplete="username" required />
+            </div>
+            <div class="form-group">
+              <label>Password</label>
+              <div class="input-password">
+                <input type="password" id="login-password" placeholder="masukkan password" autocomplete="current-password" required />
+                <button type="button" class="toggle-pw" onclick="togglePw('login-password', this)">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+                </button>
+              </div>
+            </div>
+            <div id="login-error" class="form-error hidden"></div>
+            <button type="submit" class="btn-primary" id="login-btn">
+              <span>Masuk</span>
+              <div class="btn-loader hidden"></div>
+            </button>
+          </form>
+
+          <!-- Register Form -->
+          <form id="register-form" class="auth-form" onsubmit="handleRegister(event)">
+            <div class="form-group">
+              <label>Username <span class="hint">min. 3 karakter alfanumerik</span></label>
+              <input type="text" id="reg-username" placeholder="pilih username unik" autocomplete="username" required />
+            </div>
+            <div class="form-group">
+              <label>Nama Tampilan</label>
+              <input type="text" id="reg-displayname" placeholder="nama yang terlihat orang lain" autocomplete="name" />
+            </div>
+            <div class="form-group">
+              <label>Password <span class="hint">min. 6 karakter</span></label>
+              <div class="input-password">
+                <input type="password" id="reg-password" placeholder="buat password kuat" autocomplete="new-password" required />
+                <button type="button" class="toggle-pw" onclick="togglePw('reg-password', this)">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+                </button>
+              </div>
+            </div>
+            <div id="register-error" class="form-error hidden"></div>
+            <button type="submit" class="btn-primary" id="register-btn">
+              <span>Buat Akun</span>
+              <div class="btn-loader hidden"></div>
+            </button>
+          </form>
+        </div>
+      </div>
+    </div>
+
+    <!-- MAIN CHAT APP -->
+    <div id="chat-page" class="page">
+      <div class="app-container">
+        <!-- SIDEBAR -->
+        <aside class="sidebar" id="sidebar">
+          <div class="sidebar-header">
+            <div class="sidebar-logo">
+              <svg viewBox="0 0 40 40" fill="none" width="32" height="32"><rect width="40" height="40" rx="10" fill="url(#lg2)"/><path d="M10 13C10 11.3 11.3 10 13 10h14c1.7 0 3 1.3 3 3v10c0 1.7-1.3 3-3 3H22l-4 4-4-4h-1c-1.7 0-3-1.3-3-3V13z" fill="white"/><defs><linearGradient id="lg2" x1="0" y1="0" x2="40" y2="40"><stop stop-color="#6C63FF"/><stop offset="1" stop-color="#48C8A9"/></linearGradient></defs></svg>
+              <span>Rylac</span>
+            </div>
+            <div class="sidebar-actions">
+              <button class="icon-btn" onclick="openSearch()" title="Cari pengguna">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+              </button>
+              <div class="menu-dropdown-wrap">
+                <button class="icon-btn" onclick="toggleMainMenu()" title="Menu">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="5" r="1"/><circle cx="12" cy="12" r="1"/><circle cx="12" cy="19" r="1"/></svg>
+                </button>
+                <div class="dropdown-menu" id="main-menu">
+                  <button onclick="openProfile()">Profil Saya</button>
+                  <button onclick="openSettings()">Pengaturan</button>
+                  <button id="admin-menu-btn" onclick="openAdmin()" class="hidden">Panel Admin</button>
+                  <hr/>
+                  <button onclick="handleLogout()" class="danger">Keluar</button>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="user-self-info" id="user-self-info">
+            <div class="avatar-wrap" onclick="openProfile()">
+              <img class="avatar" id="self-avatar" src="" alt="avatar" />
+              <div class="online-dot active" id="self-online-dot"></div>
+            </div>
+            <div class="user-meta">
+              <span class="display-name" id="self-display-name">...</span>
+              <span class="user-id-badge" id="self-userid-badge">ID: ...</span>
+            </div>
+          </div>
+
+          <div class="search-bar-wrap" id="search-bar-wrap">
+            <div class="search-bar">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+              <input type="text" id="search-input" placeholder="Cari user atau ketik ID..." oninput="handleSearch(this.value)" />
+              <button onclick="closeSearch()" class="close-search">✕</button>
+            </div>
+            <div id="search-results" class="search-results hidden"></div>
+          </div>
+
+          <div class="contacts-list" id="contacts-list">
+            <div class="contacts-loading" id="contacts-loading">
+              <div class="skeleton-contact"></div>
+              <div class="skeleton-contact"></div>
+              <div class="skeleton-contact"></div>
+            </div>
+            <div id="contacts-empty" class="contacts-empty hidden">
+              <div class="empty-icon">💬</div>
+              <p>Belum ada percakapan</p>
+              <small>Cari pengguna untuk mulai chat</small>
+            </div>
+            <div id="contacts-items"></div>
+          </div>
+        </aside>
+
+        <!-- MAIN CHAT AREA -->
+        <main class="chat-main" id="chat-main">
+          <!-- Welcome State -->
+          <div class="chat-welcome" id="chat-welcome">
+            <div class="welcome-content">
+              <div class="welcome-icon">
+                <svg viewBox="0 0 80 80" fill="none"><rect width="80" height="80" rx="24" fill="url(#wl)"/><path d="M20 26c0-3.3 2.7-6 6-6h28c3.3 0 6 2.7 6 6v20c0 3.3-2.7 6-6 6h-8l-8 8-8-8H26c-3.3 0-6-2.7-6-6V26z" fill="white" fill-opacity=".9"/><defs><linearGradient id="wl" x1="0" y1="0" x2="80" y2="80"><stop stop-color="#6C63FF"/><stop offset="1" stop-color="#48C8A9"/></linearGradient></defs></svg>
+              </div>
+              <h2>Selamat datang di Rylac</h2>
+              <p>Pilih percakapan di samping atau cari pengguna baru untuk mulai chatting</p>
+            </div>
+          </div>
+
+          <!-- Active Chat -->
+          <div class="chat-area" id="chat-area" style="display:none">
+            <div class="chat-header" id="chat-header">
+              <button class="back-btn" onclick="closeChatMobile()">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="m15 18-6-6 6-6"/></svg>
+              </button>
+              <div class="chat-header-user" onclick="viewPeerProfile()">
+                <div class="avatar-wrap small">
+                  <img class="avatar" id="chat-avatar" src="" alt="" />
+                  <div class="online-dot" id="chat-online-dot"></div>
+                </div>
+                <div class="chat-header-meta">
+                  <span class="display-name" id="chat-display-name">...</span>
+                  <span class="chat-status" id="chat-status">offline</span>
+                </div>
+              </div>
+              <div class="chat-header-actions">
+                <div class="menu-dropdown-wrap">
+                  <button class="icon-btn" onclick="toggleChatMenu()">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="5" r="1"/><circle cx="12" cy="12" r="1"/><circle cx="12" cy="19" r="1"/></svg>
+                  </button>
+                  <div class="dropdown-menu" id="chat-menu">
+                    <button onclick="viewPeerProfile()">Lihat Profil</button>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div class="messages-container" id="messages-container">
+              <div class="messages-loading" id="messages-loading">
+                <div class="skeleton-msg right"></div>
+                <div class="skeleton-msg left"></div>
+                <div class="skeleton-msg right"></div>
+              </div>
+              <div id="messages-list"></div>
+              <div class="typing-indicator hidden" id="typing-indicator">
+                <span></span><span></span><span></span>
+              </div>
+            </div>
+
+            <div class="message-input-area">
+              <!-- GIF Picker -->
+              <div class="gif-picker hidden" id="gif-picker">
+                <div class="gif-picker-header">
+                  <input type="text" id="gif-search" placeholder="Cari GIF..." oninput="searchGifs(this.value)" />
+                  <button onclick="closeGifPicker()">✕</button>
+                </div>
+                <div class="gif-grid" id="gif-grid">
+                  <div class="gif-loading">Memuat GIF trending...</div>
+                </div>
+              </div>
+
+              <!-- Image Preview -->
+              <div class="media-preview hidden" id="media-preview">
+                <div class="media-preview-inner">
+                  <img id="preview-img" src="" alt="preview" />
+                  <audio id="preview-audio" controls style="display:none"></audio>
+                  <button onclick="cancelMedia()" class="cancel-media">✕</button>
+                </div>
+              </div>
+
+              <div class="input-toolbar">
+                <button class="toolbar-btn" onclick="document.getElementById('file-input').click()" title="Kirim media">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="m21 15-5-5L5 21"/></svg>
+                </button>
+                <button class="toolbar-btn" onclick="toggleGifPicker()" title="GIF">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="6" width="20" height="12" rx="2"/><path d="M7 12h3m4-3v6m3-3h-3m0-3h3"/></svg>
+                </button>
+                <input type="file" id="file-input" accept="image/*,audio/*" style="display:none" onchange="handleFileSelect(event)" />
+                <div class="text-input-wrap">
+                  <textarea id="message-input" placeholder="Ketik pesan..." rows="1" oninput="autoResize(this); handleTyping()" onkeydown="handleInputKey(event)"></textarea>
+                </div>
+                <button class="send-btn" id="send-btn" onclick="sendMessage()">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 2 11 13"/><path d="m22 2-7 20-4-9-9-4 20-7z"/></svg>
+                </button>
+              </div>
+            </div>
+          </div>
+        </main>
+      </div>
+    </div>
+
+    <!-- PROFILE MODAL -->
+    <div class="modal-overlay" id="profile-modal" onclick="closeModal('profile-modal')">
+      <div class="modal" onclick="event.stopPropagation()">
+        <div class="modal-header">
+          <h3>Profil Saya</h3>
+          <button class="modal-close" onclick="closeModal('profile-modal')">✕</button>
+        </div>
+        <div class="modal-body">
+          <div class="profile-avatar-section">
+            <div class="avatar-wrap large">
+              <img class="avatar" id="profile-avatar" src="" alt="avatar" />
+            </div>
+            <div class="user-id-display" id="profile-userid">ID: ...</div>
+          </div>
+          <form id="profile-form" onsubmit="saveProfile(event)">
+            <div class="form-group">
+              <label>Nama Tampilan</label>
+              <input type="text" id="prof-displayname" maxlength="50" />
+            </div>
+            <div class="form-group">
+              <label>Username</label>
+              <input type="text" id="prof-username" disabled class="disabled" />
+            </div>
+            <div class="form-group">
+              <label>Bio</label>
+              <textarea id="prof-bio" maxlength="200" rows="3" placeholder="Ceritakan tentang dirimu..."></textarea>
+            </div>
+            <div class="form-group">
+              <label>Avatar URL <span class="hint">link gambar</span></label>
+              <input type="url" id="prof-avatar-url" placeholder="https://..." />
+            </div>
+            <div id="profile-error" class="form-error hidden"></div>
+            <button type="submit" class="btn-primary">Simpan Profil</button>
+          </form>
+        </div>
+      </div>
+    </div>
+
+    <!-- SETTINGS MODAL -->
+    <div class="modal-overlay" id="settings-modal" onclick="closeModal('settings-modal')">
+      <div class="modal" onclick="event.stopPropagation()">
+        <div class="modal-header">
+          <h3>Pengaturan</h3>
+          <button class="modal-close" onclick="closeModal('settings-modal')">✕</button>
+        </div>
+        <div class="modal-body">
+          <div class="setting-item">
+            <div class="setting-info">
+              <span class="setting-label">Tema Gelap</span>
+              <span class="setting-desc">Aktifkan tampilan gelap</span>
+            </div>
+            <div class="toggle-switch" id="theme-toggle" onclick="toggleTheme()">
+              <div class="toggle-knob"></div>
+            </div>
+          </div>
+          <div class="setting-item">
+            <div class="setting-info">
+              <span class="setting-label">Versi Aplikasi</span>
+              <span class="setting-desc">Rylac App v1.0.0</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- VIEW USER MODAL -->
+    <div class="modal-overlay" id="view-user-modal" onclick="closeModal('view-user-modal')">
+      <div class="modal" onclick="event.stopPropagation()">
+        <div class="modal-header">
+          <h3>Profil Pengguna</h3>
+          <button class="modal-close" onclick="closeModal('view-user-modal')">✕</button>
+        </div>
+        <div class="modal-body center">
+          <div class="avatar-wrap large"><img class="avatar" id="view-user-avatar" src="" alt="" /></div>
+          <h3 id="view-user-name" style="margin:12px 0 4px;"></h3>
+          <p id="view-user-username" style="color:var(--text-secondary);font-size:.85rem;margin:0 0 8px;"></p>
+          <p id="view-user-bio" style="color:var(--text-secondary);font-size:.9rem;text-align:center;"></p>
+          <div class="view-user-status">
+            <div class="online-dot" id="view-user-online-dot"></div>
+            <span id="view-user-status"></span>
+          </div>
+          <div class="user-id-display" id="view-user-id"></div>
+          <button class="btn-primary" id="view-user-chat-btn" onclick="startChatFromProfile()">Mulai Chat</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- ADMIN PANEL -->
+    <div class="modal-overlay" id="admin-modal" onclick="closeModal('admin-modal')">
+      <div class="modal large" onclick="event.stopPropagation()">
+        <div class="modal-header">
+          <h3>⚙️ Panel Admin</h3>
+          <button class="modal-close" onclick="closeModal('admin-modal')">✕</button>
+        </div>
+        <div class="modal-body">
+          <div class="admin-stats" id="admin-stats">
+            <div class="stat-card"><div class="stat-num" id="stat-users">-</div><div class="stat-label">Total User</div></div>
+            <div class="stat-card"><div class="stat-num" id="stat-messages">-</div><div class="stat-label">Total Pesan</div></div>
+            <div class="stat-card"><div class="stat-num" id="stat-online">-</div><div class="stat-label">Online</div></div>
+          </div>
+          <h4>Daftar Pengguna</h4>
+          <div class="admin-users-list" id="admin-users-list">
+            <div class="loading-text">Memuat...</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- TOAST -->
+    <div id="toast-container"></div>
+  </div>
+
+  <script src="/js/app.js"></script>
+</body>
+</html>

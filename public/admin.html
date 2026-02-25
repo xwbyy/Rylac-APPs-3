@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Admin Panel – Rylac</title>
+  <meta name="robots" content="noindex, nofollow" />
+  <link rel="stylesheet" href="/css/style.css" />
+</head>
+<body style="overflow:auto">
+  <div class="admin-layout">
+    <!-- Admin Sidebar -->
+    <aside class="admin-sidebar">
+      <div class="admin-logo">
+        <h1>⚡ Rylac</h1>
+        <p>Admin Panel</p>
+      </div>
+      <nav>
+        <div class="admin-nav-item active" id="nav-dashboard" onclick="showSection('dashboard')">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
+          Dashboard
+        </div>
+        <div class="admin-nav-item" id="nav-users" onclick="showSection('users')">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+          Users
+        </div>
+        <div class="admin-nav-item" onclick="window.location.href='/chat'">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="15 18 9 12 15 6"/></svg>
+          Back to Chat
+        </div>
+      </nav>
+      <div style="margin-top:auto;padding:20px;border-top:1px solid var(--border)">
+        <p style="font-size:0.75rem;color:var(--text-muted)" id="admin-info"></p>
+      </div>
+    </aside>
+
+    <!-- Main Content -->
+    <main class="admin-main">
+      <!-- Dashboard Section -->
+      <div id="section-dashboard">
+        <h1 class="admin-page-title">Dashboard</h1>
+        <div class="stats-grid" id="stats-grid">
+          <div class="stat-card"><div class="stat-card-label">Loading…</div><div class="stat-card-value">—</div></div>
+        </div>
+        <div class="admin-table-card" style="margin-top:16px">
+          <div class="admin-table-header">
+            <h3>Message Breakdown</h3>
+          </div>
+          <div id="message-stats" style="padding:20px">
+            <div class="spinner" style="margin:auto"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Users Section -->
+      <div id="section-users" class="hidden">
+        <h1 class="admin-page-title">User Management</h1>
+        <div class="admin-table-card">
+          <div class="admin-table-header">
+            <h3>All Users</h3>
+            <div style="display:flex;gap:8px">
+              <div class="search-input-wrapper" style="width:200px">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:14px;height:14px;color:var(--text-muted)">
+                  <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
+                </svg>
+                <input type="text" class="search-input" id="user-search" placeholder="Search users…" oninput="handleUserSearch(this.value)" />
+              </div>
+            </div>
+          </div>
+          <div style="overflow-x:auto">
+            <table>
+              <thead>
+                <tr>
+                  <th>User</th>
+                  <th>ID</th>
+                  <th>Username</th>
+                  <th>Role</th>
+                  <th>Status</th>
+                  <th>Joined</th>
+                  <th>Actions</th>
+                </tr>
+              </thead>
+              <tbody id="users-table-body">
+                <tr><td colspan="7" style="text-align:center;padding:24px">
+                  <div class="spinner" style="margin:auto"></div>
+                </td></tr>
+              </tbody>
+            </table>
+          </div>
+          <div class="pagination" id="users-pagination"></div>
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <!-- Confirm Delete Modal -->
+  <div class="modal-overlay hidden" id="confirm-modal">
+    <div class="modal" style="max-width:360px">
+      <div class="modal-header">
+        <h2>Confirm Delete</h2>
+        <button class="icon-btn" onclick="closeConfirmModal()">✕</button>
+      </div>
+      <div class="modal-body">
+        <p id="confirm-message" style="color:var(--text-secondary);line-height:1.6"></p>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-danger" id="confirm-btn" onclick="executeDelete()">Delete</button>
+        <button class="btn btn-ghost" onclick="closeConfirmModal()">Cancel</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="toast-container" id="toast-container"></div>
+
+  <script src="/js/admin.js"></script>
+</body>
+</html>

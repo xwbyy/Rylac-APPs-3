@@ -1,0 +1,246 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Rylac – Chat</title>
+  <meta name="robots" content="noindex, nofollow" />
+  <link rel="stylesheet" href="/css/style.css" />
+</head>
+<body>
+  <div id="app" class="app-container">
+    <!-- ── Sidebar ── -->
+    <aside class="sidebar" id="sidebar">
+      <div class="sidebar-header">
+        <div class="sidebar-header-left">
+          <img src="" alt="Me" class="my-avatar" id="my-avatar" onclick="openMyProfile()" />
+          <h2>Rylac</h2>
+        </div>
+        <div class="sidebar-actions">
+          <!-- Theme Toggle -->
+          <button class="icon-btn" onclick="toggleTheme()" title="Toggle theme" id="theme-btn">
+            <svg id="theme-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/>
+              <line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/>
+              <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/>
+              <line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/>
+              <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/>
+            </svg>
+          </button>
+          <!-- Settings Dropdown -->
+          <div class="dropdown">
+            <button class="icon-btn" onclick="toggleSettingsMenu()" id="settings-btn" title="Settings">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <circle cx="12" cy="12" r="1"/><circle cx="19" cy="12" r="1"/><circle cx="5" cy="12" r="1"/>
+              </svg>
+            </button>
+            <div class="dropdown-menu hidden" id="settings-menu">
+              <div class="dropdown-item" onclick="goToProfile()">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+                My Profile
+              </div>
+              <div class="dropdown-item" id="admin-nav-item" onclick="goToAdmin()" style="display:none">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+                Admin Panel
+              </div>
+              <div class="dropdown-item danger" onclick="handleLogout()">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+                Sign Out
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Search Box -->
+      <div class="search-box">
+        <div class="search-input-wrapper">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
+          </svg>
+          <input type="text" class="search-input" id="search-input"
+            placeholder="Search by username or ID…" oninput="handleSearch(this.value)" />
+          <button onclick="clearSearch()" id="search-clear-btn" class="hidden" style="color:var(--text-muted);font-size:16px">✕</button>
+        </div>
+      </div>
+
+      <!-- Contact / Search List -->
+      <div class="contact-list" id="contact-list">
+        <div class="empty-state">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
+          </svg>
+          <p>Search for a user to start chatting</p>
+        </div>
+      </div>
+    </aside>
+
+    <!-- ── Chat Panel ── -->
+    <main class="chat-panel hidden-mobile" id="chat-panel">
+      <!-- Welcome Screen -->
+      <div class="welcome-screen" id="welcome-screen">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+          <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
+        </svg>
+        <h2>Welcome to Rylac</h2>
+        <p>Search for a user or select a conversation to start messaging</p>
+      </div>
+
+      <!-- Active Chat (hidden by default) -->
+      <div id="active-chat" class="hidden" style="display:flex;flex-direction:column;height:100%">
+        <!-- Chat Header -->
+        <div class="chat-header">
+          <button class="icon-btn back-btn" onclick="closeChat()">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <polyline points="15 18 9 12 15 6"/>
+            </svg>
+          </button>
+          <div class="avatar-wrapper">
+            <img src="" alt="" class="avatar" id="chat-avatar" />
+            <span class="online-dot hidden" id="chat-online-dot"></span>
+          </div>
+          <div class="chat-header-info" onclick="openUserProfile()">
+            <div class="chat-header-name" id="chat-name"></div>
+            <div class="chat-header-status" id="chat-status">offline</div>
+          </div>
+          <!-- Chat Actions -->
+          <div class="dropdown">
+            <button class="icon-btn" onclick="toggleChatMenu()" id="chat-menu-btn">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <circle cx="12" cy="12" r="1"/><circle cx="19" cy="12" r="1"/><circle cx="5" cy="12" r="1"/>
+              </svg>
+            </button>
+            <div class="dropdown-menu hidden" id="chat-menu">
+              <div class="dropdown-item" onclick="openUserProfile()">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+                View Profile
+              </div>
+              <div class="dropdown-item" onclick="clearChatHistory()">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/></svg>
+                Clear History
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Messages Area -->
+        <div class="messages-area" id="messages-area">
+          <div id="load-more-btn" class="hidden" style="text-align:center;padding:8px">
+            <button class="btn btn-ghost" style="font-size:0.8125rem;padding:6px 16px" onclick="loadMoreMessages()">Load older messages</button>
+          </div>
+        </div>
+
+        <!-- Typing Indicator -->
+        <div id="typing-indicator" class="hidden" style="padding:4px 16px 4px">
+          <div class="typing-indicator">
+            <div class="typing-dot"></div>
+            <div class="typing-dot"></div>
+            <div class="typing-dot"></div>
+          </div>
+        </div>
+
+        <!-- Media Preview (shown when file selected) -->
+        <div class="media-preview hidden" id="media-preview">
+          <img id="preview-image" class="hidden" src="" alt="Preview" style="max-height:80px;border-radius:8px" />
+          <audio id="preview-audio" class="hidden" controls style="height:40px"></audio>
+          <span id="preview-label" style="font-size:0.875rem;color:var(--text-secondary)"></span>
+          <button class="media-preview-close" onclick="clearMediaPreview()">✕</button>
+        </div>
+
+        <!-- GIF Picker -->
+        <div class="gif-picker hidden" id="gif-picker">
+          <div class="gif-picker-header">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:16px;height:16px;color:var(--text-secondary)">
+              <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
+            </svg>
+            <input type="text" id="gif-search-input" placeholder="Search GIFs…" oninput="searchGifs(this.value)" />
+            <button onclick="closeGifPicker()" style="color:var(--text-muted);font-size:16px">✕</button>
+          </div>
+          <div class="gif-grid" id="gif-grid">
+            <div class="empty-state" style="grid-column:1/-1">
+              <p>Search for GIFs above</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Message Input -->
+        <div class="message-input-area">
+          <!-- Attachment button -->
+          <button class="icon-btn" onclick="document.getElementById('file-input').click()" title="Attach image/audio">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M21.44 11.05l-9.19 9.19a6 6 0 0 1-8.49-8.49l9.19-9.19a4 4 0 0 1 5.66 5.66l-9.2 9.19a2 2 0 0 1-2.83-2.83l8.49-8.48"/>
+            </svg>
+          </button>
+          <input type="file" id="file-input" class="file-input" accept="image/*,audio/*" onchange="handleFileSelect(event)" />
+
+          <div class="message-input-wrapper">
+            <!-- GIF button -->
+            <button class="icon-btn" onclick="toggleGifPicker()" title="Send GIF" style="flex-shrink:0">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:18px;height:18px">
+                <rect x="2" y="6" width="20" height="12" rx="2"/><path d="M8 12h.5"/><path d="M11 12h3"/>
+                <path d="M16 9v6m-3-3h3"/><path d="M8 9v3"/>
+              </svg>
+            </button>
+            <textarea class="message-input" id="message-input" placeholder="Type a message…" rows="1"
+              onkeydown="handleInputKeydown(event)" oninput="handleInputChange()" ></textarea>
+          </div>
+
+          <button class="send-btn" id="send-btn" onclick="sendMessage()" title="Send">
+            <svg viewBox="0 0 24 24" fill="white" stroke="none">
+              <path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"/>
+            </svg>
+          </button>
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <!-- User Profile Modal -->
+  <div class="modal-overlay hidden" id="profile-modal">
+    <div class="modal">
+      <div class="modal-header">
+        <h2>Profile</h2>
+        <button class="icon-btn" onclick="closeProfileModal()">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+        </button>
+      </div>
+      <div class="modal-body" style="text-align:center">
+        <img src="" alt="" id="modal-avatar" class="profile-avatar-large" />
+        <h3 id="modal-displayname" style="font-size:1.125rem;margin-bottom:4px"></h3>
+        <p id="modal-username" style="color:var(--text-secondary);font-size:0.875rem;margin-bottom:8px"></p>
+        <p id="modal-userid" style="color:var(--text-muted);font-size:0.8125rem;margin-bottom:12px"></p>
+        <p id="modal-bio" style="color:var(--text-secondary);font-size:0.875rem;margin-bottom:16px;max-width:300px;margin-left:auto;margin-right:auto;line-height:1.5"></p>
+        <p id="modal-status" style="font-size:0.8125rem;color:var(--text-muted)"></p>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-primary" onclick="startChatWithModal()">Start Chat</button>
+        <button class="btn btn-ghost" onclick="closeProfileModal()">Close</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Toast Container -->
+  <div class="toast-container" id="toast-container"></div>
+
+  <!-- Context Menu for messages -->
+  <div class="context-menu hidden" id="context-menu">
+    <div class="context-menu-item" onclick="copyMessage()">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:14px;height:14px"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+      Copy Text
+    </div>
+    <div class="context-menu-item danger" id="delete-msg-btn" onclick="deleteContextMessage()">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:14px;height:14px"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/></svg>
+      Delete Message
+    </div>
+  </div>
+
+  <!-- Image Lightbox -->
+  <div class="lightbox hidden" id="lightbox" onclick="closeLightbox()">
+    <img src="" alt="Full size" id="lightbox-img" />
+  </div>
+
+  <!-- Socket.io Client -->
+  <script src="/socket.io/socket.io.js"></script>
+  <script src="/js/chat.js"></script>
+</body>
+</html>

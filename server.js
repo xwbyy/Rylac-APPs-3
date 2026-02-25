@@ -1,119 +1,98 @@
-// server.js - Main application entry point
-const express = require("express");
-const http = require("http");
-const { Server } = require("socket.io");
-const cookieParser = require("cookie-parser");
-const morgan = require("morgan");
-const path = require("path");
+const express = require('express');
+const http = require('http');
+const { Server } = require('socket.io');
+const cookieParser = require('cookie-parser');
+const cors = require('cors');
+const path = require('path');
+const config = require('./config');
+const { connectDB } = require('./db');
+const logger = require('./utils/logger');
+const { initSocket } = require('./socket/handler');
 
-const config = require("./config");
-const connectDB = require("./utils/db");
-const { initSocket } = require("./utils/socket");
-const { errorHandler } = require("./middleware/validation");
-const logger = require("./utils/logger");
-
-// Routes
-const authRoutes = require("./routes/auth");
-const userRoutes = require("./routes/users");
-const messageRoutes = require("./routes/messages");
-const adminRoutes = require("./routes/admin");
+const authRoutes = require('./routes/auth');
+const userRoutes = require('./routes/users');
+const messageRoutes = require('./routes/messages');
+const adminRoutes = require('./routes/admin');
 
 const app = express();
+app.set('trust proxy', 1);
 const server = http.createServer(app);
 
-// Socket.io setup with CORS
 const io = new Server(server, {
   cors: {
-    origin: true,
+    origin: config.CORS_ORIGIN,
     credentials: true,
   },
-  transports: ["websocket", "polling"],
-  pingTimeout: 60000,
-  pingInterval: 25000,
-});
-
-// Connect to DB on startup
-connectDB().catch((err) => {
-  logger.error("Failed to connect to MongoDB on startup", { error: err.message });
+  transports: ['websocket', 'polling'],
 });
 
 // Middleware
-app.use(morgan(config.NODE_ENV === "production" ? "combined" : "dev"));
-app.use(express.json({ limit: "2mb" }));
-app.use(express.urlencoded({ extended: true, limit: "2mb" }));
-app.use(cookieParser());
+app.use(cors({ origin: config.CORS_ORIGIN, credentials: true }));
+app.use(express.json({ limit: '2mb' }));
+app.use(express.urlencoded({ extended: true, limit: '2mb' }));
+app.use(cookieParser(config.COOKIE_SECRET));
+app.use(express.static(path.join(__dirname, 'public')));
 
-// Static files
-app.use(express.static(path.join(__dirname, "public")));
-
-// Security headers
+// Logging middleware
 app.use((req, res, next) => {
-  res.setHeader("X-Content-Type-Options", "nosniff");
-  res.setHeader("X-Frame-Options", "DENY");
-  res.setHeader("X-XSS-Protection", "1; mode=block");
-  res.setHeader("Referrer-Policy", "strict-origin-when-cross-origin");
+  logger.info(`${req.method} ${req.path}`);
   next();
 });
 
-// DB middleware - ensure connection for each request (serverless-safe)
+// Connect DB on first request (Vercel serverless friendly)
 app.use(async (req, res, next) => {
   try {
     await connectDB();
     next();
-  } catch (error) {
-    logger.error("DB connection error in request", { error: error.message });
-    return res.status(503).json({ success: false, message: "Service temporarily unavailable" });
+  } catch (err) {
+    res.status(503).json({ error: 'Database unavailable' });
   }
 });
 
 // API Routes
-app.use("/api/auth", authRoutes);
-app.use("/api/users", userRoutes);
-app.use("/api/messages", messageRoutes);
-app.use("/api/admin", adminRoutes);
+app.use('/api/auth', authRoutes);
+app.use('/api/users', userRoutes);
+app.use('/api/messages', messageRoutes);
+app.use('/api/admin', adminRoutes);
 
-// SEO files
-app.get("/sitemap.xml", (req, res) => {
-  const appUrl = config.APP_URL;
-  res.setHeader("Content-Type", "application/xml");
+// Sitemap
+app.get('/sitemap.xml', (req, res) => {
+  const baseUrl = config.CORS_ORIGIN;
+  res.header('Content-Type', 'application/xml');
   res.send(`<?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
-  <url><loc>${appUrl}/</loc><changefreq>weekly</changefreq><priority>1.0</priority></url>
-  <url><loc>${appUrl}/login</loc><changefreq>monthly</changefreq><priority>0.8</priority></url>
-  <url><loc>${appUrl}/register</loc><changefreq>monthly</changefreq><priority>0.8</priority></url>
+  <url><loc>${baseUrl}/</loc><changefreq>monthly</changefreq><priority>1.0</priority></url>
+  <url><loc>${baseUrl}/login</loc><changefreq>monthly</changefreq><priority>0.8</priority></url>
+  <url><loc>${baseUrl}/register</loc><changefreq>monthly</changefreq><priority>0.8</priority></url>
 </urlset>`);
 });
 
-app.get("/robots.txt", (req, res) => {
-  res.setHeader("Content-Type", "text/plain");
-  res.send(`User-agent: *\nAllow: /\nDisallow: /api/\nDisallow: /chat\nDisallow: /admin\nSitemap: ${config.APP_URL}/sitemap.xml`);
+// Robots.txt
+app.get('/robots.txt', (req, res) => {
+  res.type('text/plain');
+  res.send(`User-agent: *\nAllow: /\nDisallow: /api/\nDisallow: /chat\nDisallow: /admin\nSitemap: ${config.CORS_ORIGIN}/sitemap.xml`);
 });
 
-// Health check
-app.get("/api/health", (req, res) => {
-  res.json({ success: true, status: "ok", timestamp: new Date().toISOString() });
+// SPA fallback for all page routes
+app.get(['/login', '/register', '/chat', '/profile', '/admin'], (req, res) => {
+  res.sendFile(path.join(__dirname, 'public', 'index.html'));
+});
+app.get('/', (req, res) => {
+  res.sendFile(path.join(__dirname, 'public', 'index.html'));
 });
 
-// SPA fallback - serve index.html for all non-API routes
-app.get("*", (req, res) => {
-  if (!req.path.startsWith("/api/")) {
-    res.sendFile(path.join(__dirname, "public", "index.html"));
-  } else {
-    res.status(404).json({ success: false, message: "API endpoint not found" });
-  }
+// Global error handler
+app.use((err, req, res, next) => {
+  logger.error('Unhandled error:', err.message);
+  res.status(500).json({ error: 'Internal server error' });
 });
 
-// Global error handler (must be last)
-app.use(errorHandler);
-
-// Initialize Socket.io
+// Init socket
 initSocket(io);
 
-// Start server
-if (require.main === module) {
-  server.listen(config.PORT, () => {
-    logger.info(`Rylac App running on port ${config.PORT}`);
-  });
-}
+const PORT = config.PORT;
+server.listen(PORT, () => {
+  logger.info(`Rylac App running on port ${PORT}`);
+});
 
-module.exports = server;
+module.exports = app;
